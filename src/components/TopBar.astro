@@ -1,0 +1,21 @@
+---
+import { empresa, linkWhatsApp } from '../data/empresa';
+---
+
+<div class="hidden bg-asfalto-900 text-cinza-200 sm:block">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-1.5 text-xs">
+    <p class="flex items-center gap-2">
+      <span class="text-vermelho-400">●</span>
+      Arroio dos Ratos &middot; Porto Alegre &middot; BR-290
+    </p>
+    <div class="flex items-center gap-4">
+      <a href={`tel:+55${empresa.telefones[0].replace(/\D/g, '')}`} class="hover:text-white">
+        {empresa.telefones[0]}
+      </a>
+      <a href={linkWhatsApp('Olá! Vim pelo site.')} target="_blank" rel="noopener" class="hover:text-white">
+        WhatsApp
+      </a>
+      <a href={empresa.facebook} target="_blank" rel="noopener" class="hover:text-white">Facebook</a>
+    </div>
+  </div>
+</div>

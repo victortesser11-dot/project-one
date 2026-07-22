@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import DemoBanner from '../components/DemoBanner.astro';
+import { getAvisos } from '../lib/db';
+
+export const prerender = false; // dados ao vivo via ISR
+
+// Dados do Supabase (tabela `notices`) com fallback para o seed local.
+const avisos = await getAvisos();
+
+const fmt = (d: string) => new Date(d).toLocaleDateString('pt-BR');
+---
+
+<Base title="Avisos — Empresa Louzada">
+  <DemoBanner />
+
+  <section class="mx-auto max-w-3xl px-4 py-10">
+    <h1 class="text-3xl font-extrabold text-azul-700">Avisos</h1>
+    <p class="mt-2 text-tinta-suave">Mudanças de horário, feriados e condições da estrada.</p>
+
+    <div class="mt-8 space-y-4">
+      {avisos.map((a) => (
+        <article
+          class:list={[
+            'rounded-2xl bg-white p-5 shadow-sm ring-1',
+            a.urgente ? 'ring-vermelho-300' : 'ring-cinza-200',
+          ]}
+        >
+          <div class="flex items-center gap-2">
+            {a.urgente && (
+              <span class="rounded-full bg-vermelho-100 px-2.5 py-0.5 text-xs font-bold text-vermelho-700">
+                Urgente
+              </span>
+            )}
+            <time class="text-xs text-tinta-suave">{fmt(a.data)}</time>
+          </div>
+          <h2 class="mt-2 text-lg font-bold text-azul-700">{a.titulo}</h2>
+          <p class="mt-1 text-sm text-tinta-suave">{a.corpo}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+</Base>

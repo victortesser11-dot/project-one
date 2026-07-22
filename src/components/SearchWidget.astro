@@ -1,0 +1,66 @@
+---
+// Box de consulta de horário — protagonista do hero, no espírito do
+// "comprar passagem" das operadoras, adaptado a uma linha metropolitana.
+// Envia GET para /horarios, que pré-seleciona sentido e dia.
+---
+
+<form action="/horarios" method="get" class="rounded-xl bg-white p-4 shadow-2xl ring-1 ring-black/5 sm:p-5" data-consulta>
+  <div class="grid gap-3 sm:grid-cols-[1fr_auto_1fr_auto]">
+    <!-- De -->
+    <div class="rounded-lg bg-cinza-50 px-3 py-2 ring-1 ring-cinza-200">
+      <span class="block text-[11px] font-bold uppercase tracking-wide text-tinta-suave">De</span>
+      <span class="block font-bold text-azul-700" data-de>Arroio dos Ratos</span>
+    </div>
+
+    <!-- Inverter -->
+    <button
+      type="button"
+      data-swap
+      aria-label="Inverter sentido"
+      class="mx-auto flex h-10 w-10 items-center justify-center self-center rounded-full bg-azul-700 text-white transition hover:bg-azul-600"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3 4 7l4 4" /><path d="M4 7h16" />
+        <path d="m16 21 4-4-4-4" /><path d="M20 17H4" />
+      </svg>
+    </button>
+
+    <!-- Para -->
+    <div class="rounded-lg bg-cinza-50 px-3 py-2 ring-1 ring-cinza-200">
+      <span class="block text-[11px] font-bold uppercase tracking-wide text-tinta-suave">Para</span>
+      <span class="block font-bold text-azul-700" data-para>Porto Alegre</span>
+    </div>
+
+    <!-- Dia -->
+    <label class="flex flex-col justify-center rounded-lg bg-cinza-50 px-3 py-2 ring-1 ring-cinza-200">
+      <span class="text-[11px] font-bold uppercase tracking-wide text-tinta-suave">Dia</span>
+      <select name="dia" class="bg-transparent font-bold text-azul-700 outline-none">
+        <option value="hoje">Hoje</option>
+        <option value="util">Dias úteis</option>
+        <option value="sabado">Sábado</option>
+        <option value="domingo">Domingo/feriados</option>
+      </select>
+    </label>
+  </div>
+
+  <input type="hidden" name="sentido" value="ida" data-sentido />
+
+  <button type="submit" class="btn-cta mt-3 w-full py-3 text-base">
+    Ver horários
+  </button>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLElement>('[data-consulta]');
+  if (form) {
+    const de = form.querySelector<HTMLElement>('[data-de]')!;
+    const para = form.querySelector<HTMLElement>('[data-para]')!;
+    const sentido = form.querySelector<HTMLInputElement>('[data-sentido]')!;
+    form.querySelector('[data-swap]')?.addEventListener('click', () => {
+      const tmp = de.textContent;
+      de.textContent = para.textContent;
+      para.textContent = tmp;
+      sentido.value = sentido.value === 'ida' ? 'volta' : 'ida';
+    });
+  }
+</script>

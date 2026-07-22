@@ -1,0 +1,75 @@
+---
+import '../styles/global.css';
+import TopBar from '../components/TopBar.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import { empresa } from '../data/empresa';
+
+interface Props {
+  title?: string;
+  description?: string;
+  whatsappMensagem?: string;
+}
+
+const {
+  title = `${empresa.nome} — Horários Arroio dos Ratos ⇄ Porto Alegre`,
+  description = `Horários dos ônibus da ${empresa.nomeCompleto} entre Arroio dos Ratos e Porto Alegre pela BR-290. Consulte a próxima partida, tarifas e fretamento.`,
+  whatsappMensagem,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={Astro.url.href} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="pt_BR" />
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#164a88" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Fonte Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Dados estruturados: transporte / negócio local -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'BusCompany',
+      name: empresa.nomeCompleto,
+      foundingDate: String(empresa.desde),
+      telephone: empresa.telefones[0],
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Rua João Cândido de Souza, 50',
+        addressLocality: 'Arroio dos Ratos',
+        addressRegion: 'RS',
+        addressCountry: 'BR',
+      },
+    })} />
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <TopBar />
+    <Header />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+    <WhatsAppButton mensagem={whatsappMensagem} />
+  </body>
+</html>

@@ -1,0 +1,130 @@
+---
+import { SENTIDOS, TIPOS_DIA } from '../data/schedules';
+import { tipoDiaDe } from '../lib/nextDeparture';
+import type { Horarios, Sentido, TipoDia } from '../lib/types';
+
+interface Props {
+  horarios: Horarios;
+}
+const { horarios } = Astro.props;
+
+const sentidos: Sentido[] = ['ida', 'volta'];
+const tipos: TipoDia[] = ['util', 'sabado', 'domingo'];
+const tipoAtual = tipoDiaDe(new Date());
+---
+
+<div data-schedule>
+  <div class="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Sentido">
+    {
+      sentidos.map((s, i) => (
+        <button
+          type="button"
+          data-sentido-btn={s}
+          class:list={[
+            'rounded-xl px-4 py-2.5 text-sm font-bold transition',
+            i === 0 ? 'bg-azul-700 text-white' : 'bg-white text-tinta ring-1 ring-cinza-200',
+          ]}
+        >
+          {SENTIDOS[s].curto}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Dia">
+    {
+      tipos.map((t) => (
+        <button
+          type="button"
+          data-dia-btn={t}
+          class:list={[
+            'rounded-xl px-3.5 py-2 text-sm font-semibold transition',
+            t === tipoAtual ? 'bg-vermelho-500 text-white' : 'bg-white text-tinta-suave ring-1 ring-cinza-200',
+          ]}
+        >
+          {TIPOS_DIA[t]}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    sentidos.map((s) =>
+      tipos.map((t) => (
+        <div
+          data-grade
+          data-sentido={s}
+          data-dia={t}
+          class:list={[
+            'grid grid-cols-3 gap-2 sm:grid-cols-4',
+            !(s === 'ida' && t === tipoAtual) && 'hidden',
+          ]}
+        >
+          {horarios[s][t].length === 0 ? (
+            <p class="col-span-full text-tinta-suave">Sem partidas neste dia.</p>
+          ) : (
+            horarios[s][t].map((p) => (
+              <div class="rounded-xl bg-white px-3 py-3 text-center shadow-sm ring-1 ring-cinza-200">
+                <span class="tabular text-xl font-bold text-azul-700">{p.hora}</span>
+                {p.obs && <span class="block text-[11px] text-tinta-suave">{p.obs}</span>}
+              </div>
+            ))
+          )}
+        </div>
+      ))
+    )
+  }
+</div>
+
+<script>
+  import { tipoDiaDe } from '../lib/nextDeparture';
+
+  const raiz = document.querySelector<HTMLElement>('[data-schedule]');
+  if (raiz) {
+    let sentido = 'ida';
+    let dia = raiz.querySelector<HTMLElement>('[data-grade]:not(.hidden)')?.dataset.dia ?? 'util';
+
+    function pintar(grupo: string, ativo: string, classeAtiva: string, classeInativa: string) {
+      raiz!.querySelectorAll<HTMLElement>(`[data-${grupo}-btn]`).forEach((b) => {
+        const val = b.dataset[`${grupo}Btn`];
+        const on = val === ativo;
+        b.className = b.className.replace(classeAtiva, '').replace(classeInativa, '').trim();
+        b.className += ' ' + (on ? classeAtiva : classeInativa);
+      });
+    }
+
+    function render() {
+      raiz!.querySelectorAll<HTMLElement>('[data-grade]').forEach((g) => {
+        const mostra = g.dataset.sentido === sentido && g.dataset.dia === dia;
+        g.classList.toggle('hidden', !mostra);
+      });
+    }
+
+    function aplicar(novoSentido: string, novoDia: string) {
+      sentido = novoSentido;
+      dia = novoDia;
+      pintar('sentido', sentido, ' bg-azul-700 text-white', ' bg-white text-tinta ring-1 ring-cinza-200');
+      pintar('dia', dia, ' bg-vermelho-500 text-white', ' bg-white text-tinta-suave ring-1 ring-cinza-200');
+      render();
+    }
+
+    raiz.querySelectorAll<HTMLElement>('[data-sentido-btn]').forEach((b) =>
+      b.addEventListener('click', () => aplicar(b.dataset.sentidoBtn!, dia)),
+    );
+    raiz.querySelectorAll<HTMLElement>('[data-dia-btn]').forEach((b) =>
+      b.addEventListener('click', () => aplicar(sentido, b.dataset.diaBtn!)),
+    );
+
+    // Pré-seleção vinda do widget de consulta (?sentido=&dia=)
+    const params = new URLSearchParams(window.location.search);
+    const pSentido = params.get('sentido');
+    let pDia = params.get('dia');
+    if (pDia === 'hoje') pDia = tipoDiaDe(new Date());
+    if (pSentido || pDia) {
+      aplicar(
+        pSentido === 'volta' || pSentido === 'ida' ? pSentido : sentido,
+        ['util', 'sabado', 'domingo'].includes(pDia ?? '') ? pDia! : dia,
+      );
+    }
+  }
+</script>

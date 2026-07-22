@@ -1,0 +1,79 @@
+---
+import { empresa, linkWhatsApp } from '../data/empresa';
+
+const links = [
+  { href: '/', label: 'Início' },
+  { href: '/horarios', label: 'Horários' },
+  { href: '/pontos', label: 'Pontos' },
+  { href: '/fretamento', label: 'Fretamento' },
+  { href: '/avisos', label: 'Avisos' },
+];
+const pathname = Astro.url.pathname;
+---
+
+<header class="border-b-4 border-vermelho-500 bg-white">
+  <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+    <a href="/" class="flex items-center gap-3">
+      <span class="flex h-11 w-11 items-center justify-center rounded-md bg-azul-700 text-white" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10" />
+          <path d="M2 17h20" /><circle cx="7" cy="19" r="1.5" /><circle cx="17" cy="19" r="1.5" />
+          <path d="M4 11h16" />
+        </svg>
+      </span>
+      <span class="leading-none">
+        <span class="block text-xl font-extrabold tracking-tight text-azul-700">Louzada</span>
+        <span class="block text-[11px] font-semibold uppercase tracking-wider text-tinta-suave">
+          Transportes &middot; desde {empresa.desde}
+        </span>
+      </span>
+    </a>
+
+    <ul class="hidden items-center gap-1 text-sm font-semibold text-tinta md:flex">
+      {
+        links.map((l) => (
+          <li>
+            <a
+              href={l.href}
+              class:list={[
+                'rounded-md px-3 py-2 transition hover:bg-cinza-100',
+                pathname === l.href && 'text-azul-700',
+              ]}
+            >
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <a
+      href={linkWhatsApp('Olá! Gostaria de uma informação sobre a linha Arroio dos Ratos ⇄ Porto Alegre.')}
+      target="_blank" rel="noopener"
+      class="btn-cta px-4 py-2 text-sm"
+    >
+      Fale conosco
+    </a>
+  </nav>
+
+  <!-- Nav mobile compacta -->
+  <div class="border-t border-cinza-200 md:hidden">
+    <ul class="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-2 py-1.5 text-sm font-semibold">
+      {
+        links.map((l) => (
+          <li>
+            <a
+              href={l.href}
+              class:list={[
+                'block whitespace-nowrap rounded-md px-3 py-1.5',
+                pathname === l.href ? 'bg-azul-700 text-white' : 'text-tinta-suave',
+              ]}
+            >
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</header>

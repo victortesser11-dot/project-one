@@ -1,0 +1,129 @@
+---
+import 'leaflet/dist/leaflet.css';
+import Base from '../layouts/Base.astro';
+import DemoBanner from '../components/DemoBanner.astro';
+import { getPontos } from '../lib/db';
+import type { Ponto } from '../data/pontos';
+
+export const prerender = false; // dados ao vivo via ISR
+
+const pontos = await getPontos();
+
+// Agrupa por cidade preservando a ordem de aparição
+const porCidade = pontos.reduce<Record<string, Ponto[]>>((acc, p) => {
+  (acc[p.cidade] ??= []).push(p);
+  return acc;
+}, {});
+
+function comoChegar(p: Ponto): string {
+  if (p.lat != null && p.lng != null) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+  }
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.nome} ${p.cidade}`)}`;
+}
+---
+
+<Base
+  title="Pontos de embarque — Empresa Louzada"
+  description="Onde pegar o ônibus da Empresa Louzada em Arroio dos Ratos e Porto Alegre. Mapa e endereços dos pontos de embarque."
+  whatsappMensagem="Olá! Tenho uma dúvida sobre os pontos de embarque da linha Arroio dos Ratos ⇄ Porto Alegre."
+>
+  <DemoBanner />
+
+  <section class="hero-rodovia text-white">
+    <div class="mx-auto max-w-6xl px-4 py-10">
+      <p class="inline-flex items-center gap-2 rounded-sm border-l-2 border-vermelho-500 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-widest text-vermelho-400">
+        Onde pegar
+      </p>
+      <h1 class="mt-4 text-3xl font-extrabold sm:text-4xl">Pontos de embarque</h1>
+      <p class="mt-2 max-w-xl text-cinza-200/90">
+        Onde o ônibus para em Arroio dos Ratos e em Porto Alegre. Toque em "Como chegar" para abrir a rota no seu mapa.
+      </p>
+    </div>
+    <div class="faixa-pista"></div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-10">
+    <div class="grid gap-8 lg:grid-cols-2">
+      <!-- Lista -->
+      <div class="space-y-6">
+        {
+          Object.entries(porCidade).map(([cidade, lista]) => (
+            <div>
+              <h2 class="mb-3 flex items-center gap-2 text-lg font-extrabold text-azul-700">
+                <span class="inline-block h-2.5 w-2.5 rounded-full bg-vermelho-500" />
+                {cidade}
+              </h2>
+              <div class="space-y-3">
+                {lista.map((p) => (
+                  <article class="flex items-start justify-between gap-4 rounded-xl border border-cinza-200 bg-white p-4">
+                    <div>
+                      <p class="font-bold text-tinta">{p.nome}</p>
+                      {p.referencia && <p class="mt-0.5 text-sm text-tinta-suave">{p.referencia}</p>}
+                    </div>
+                    <a
+                      href={comoChegar(p)}
+                      target="_blank"
+                      rel="noopener"
+                      class="shrink-0 rounded-md bg-azul-700 px-3 py-2 text-sm font-bold text-white transition hover:bg-azul-600"
+                    >
+                      Como chegar
+                    </a>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+        <p class="text-xs text-tinta-suave">
+          * Pontos e localizações a confirmar com a empresa.
+        </p>
+      </div>
+
+      <!-- Mapa -->
+      <div>
+        <div id="mapa" class="h-[380px] w-full rounded-xl ring-1 ring-cinza-200 lg:h-full lg:min-h-[480px]"></div>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" data-pontos set:html={JSON.stringify(pontos)} />
+
+  <script>
+    import L from 'leaflet';
+
+    const el = document.getElementById('mapa');
+    const raw = document.querySelector<HTMLElement>('[data-pontos]')?.textContent;
+    const pontos = raw ? JSON.parse(raw) : [];
+    const comCoord = pontos.filter((p: any) => p.lat != null && p.lng != null);
+
+    if (el && comCoord.length) {
+      const map = L.map(el, { scrollWheelZoom: false }).setView([-30.05, -51.45], 10);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 18,
+      }).addTo(map);
+
+      const marcadores = comCoord.map((p: any) =>
+        L.circleMarker([p.lat, p.lng], {
+          radius: 9,
+          color: '#164a88',
+          weight: 3,
+          fillColor: '#db2828',
+          fillOpacity: 1,
+        })
+          .addTo(map)
+          .bindPopup(`<strong>${p.nome}</strong><br>${p.referencia ?? ''}<br>${p.cidade}`),
+      );
+
+      if (marcadores.length > 1) {
+        map.fitBounds(L.featureGroup(marcadores).getBounds().pad(0.3));
+      } else {
+        map.setView([comCoord[0].lat, comCoord[0].lng], 13);
+      }
+    } else if (el) {
+      el.innerHTML =
+        '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#5b6472;font-size:0.9rem;padding:1rem;text-align:center">Mapa indisponível — use os botões "Como chegar".</div>';
+    }
+  </script>
+</Base>

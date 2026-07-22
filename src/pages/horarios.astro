@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import DemoBanner from '../components/DemoBanner.astro';
+import ScheduleTable from '../components/ScheduleTable.astro';
+import { getHorarios, getTarifa } from '../lib/db';
+import { linkWhatsApp } from '../data/empresa';
+
+export const prerender = false; // dados ao vivo via ISR
+
+const horarios = await getHorarios();
+const tarifa = await getTarifa();
+const tarifaFmt = tarifa.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const atualizada = new Date(tarifa.atualizadaEm).toLocaleDateString('pt-BR');
+---
+
+<Base
+  title="Horários — Empresa Louzada (Arroio dos Ratos ⇄ Porto Alegre)"
+  whatsappMensagem="Olá! Tenho uma dúvida sobre os horários da linha Arroio dos Ratos ⇄ Porto Alegre."
+>
+  <DemoBanner />
+
+  <section class="mx-auto max-w-6xl px-4 py-10">
+    <h1 class="text-3xl font-extrabold text-azul-700">Horários</h1>
+    <p class="mt-2 text-tinta-suave">
+      Escolha o sentido e o dia. A grade já abre no dia de hoje.
+    </p>
+
+    <!-- Tarifa em destaque -->
+    <div class="mt-5 flex flex-wrap items-center gap-4 rounded-2xl bg-azul-50 p-4 ring-1 ring-azul-100">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-tinta-suave">Tarifa</p>
+        <p class="tabular text-2xl font-extrabold text-azul-700">{tarifaFmt}</p>
+      </div>
+      <p class="text-xs text-tinta-suave">Atualizada em {atualizada}</p>
+    </div>
+
+    <div class="mt-8">
+      <ScheduleTable horarios={horarios} />
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a
+        href={linkWhatsApp('Olá! Quero confirmar um horário da linha Arroio dos Ratos ⇄ Porto Alegre.')}
+        target="_blank" rel="noopener"
+        class="rounded-xl bg-azul-700 px-5 py-3 font-bold text-white transition hover:bg-azul-600"
+      >
+        Tirar dúvida no WhatsApp
+      </a>
+    </div>
+
+    <p class="mt-6 text-xs text-tinta-suave">
+      * Horários sujeitos a alteração pela Metroplan. Em feriados, pode valer a grade de domingo.
+    </p>
+  </section>
+</Base>

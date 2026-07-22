@@ -1,0 +1,4 @@
+# Proposta em desenvolvimento — não indexar até aprovação oficial da empresa.
+# Ao ir para produção com aval da Louzada, trocar por "Allow: /".
+User-agent: *
+Disallow: /

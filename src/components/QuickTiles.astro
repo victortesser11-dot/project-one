@@ -1,0 +1,45 @@
+---
+// Atalhos utilitários com ícones de linha (estilo operadora), sem emoji.
+const tiles = [
+  {
+    href: '/horarios',
+    label: 'Horários',
+    desc: 'Grade completa por dia',
+    icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  },
+  {
+    href: '/pontos',
+    label: 'Pontos de embarque',
+    desc: 'Onde pegar o ônibus',
+    icon: '<path d="M12 21s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  },
+  {
+    href: '/fretamento',
+    label: 'Fretamento',
+    desc: 'Excursões e grupos',
+    icon: '<path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><circle cx="7" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/><path d="M4 11h16"/>',
+  },
+  {
+    href: '/avisos',
+    label: 'Avisos',
+    desc: 'Feriados e comunicados',
+    icon: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  },
+];
+---
+
+<div class="grid gap-px overflow-hidden rounded-xl bg-cinza-200 ring-1 ring-cinza-200 sm:grid-cols-2 lg:grid-cols-4">
+  {
+    tiles.map((t) => (
+      <a href={t.href} class="group flex items-center gap-4 bg-white p-5 transition hover:bg-cinza-50">
+        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-azul-50 text-azul-700 ring-1 ring-azul-100">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={t.icon} />
+        </span>
+        <span>
+          <span class="block font-bold text-tinta group-hover:text-azul-700">{t.label}</span>
+          <span class="block text-sm text-tinta-suave">{t.desc}</span>
+        </span>
+      </a>
+    ))
+  }
+</div>

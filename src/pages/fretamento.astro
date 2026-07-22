@@ -1,0 +1,144 @@
+---
+import Base from '../layouts/Base.astro';
+import { linkWhatsApp, empresa } from '../data/empresa';
+
+const servicos = [
+  { titulo: 'Excursões', desc: 'Passeios, romarias e viagens de grupo com conforto e segurança.' },
+  { titulo: 'Empresas', desc: 'Transporte de colaboradores, eventos corporativos e deslocamentos.' },
+  { titulo: 'Escolas', desc: 'Passeios escolares e transporte de turmas com responsabilidade.' },
+  { titulo: 'Eventos', desc: 'Casamentos, formaturas, times e grupos para qualquer destino.' },
+];
+
+const msgFretamento =
+  'Olá! Gostaria de um orçamento de fretamento.\n\nData:\nOrigem:\nDestino:\nNº de passageiros:\nObservações:';
+---
+
+<Base
+  title="Fretamento — Empresa Louzada"
+  description="Fretamento de ônibus com a Empresa Louzada: excursões, empresas, escolas e eventos. Intermunicipal, interestadual e internacional. Peça seu orçamento."
+  whatsappMensagem={msgFretamento}
+>
+  <!-- HERO -->
+  <section class="hero-rodovia text-white">
+    <div class="mx-auto max-w-6xl px-4 py-14">
+      <p class="inline-flex items-center gap-2 rounded-sm border-l-2 border-vermelho-500 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-widest text-vermelho-400">
+        Fretamento
+      </p>
+      <h1 class="mt-4 text-3xl font-extrabold sm:text-4xl">Fretamento com quem tem estrada</h1>
+      <p class="mt-3 max-w-xl text-cinza-200/90">
+        Mais de 50 anos transportando pessoas com segurança. Fretamento intermunicipal,
+        interestadual e internacional para grupos de qualquer tamanho.
+      </p>
+      <a href={linkWhatsApp(msgFretamento)} target="_blank" rel="noopener" class="btn-cta mt-6 inline-block px-6 py-3">
+        Pedir orçamento no WhatsApp
+      </a>
+    </div>
+    <div class="faixa-pista"></div>
+  </section>
+
+  <!-- SERVIÇOS -->
+  <section class="mx-auto max-w-6xl px-4 py-12">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {servicos.map((s) => (
+        <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-cinza-200">
+          <h3 class="font-bold text-azul-700">{s.titulo}</h3>
+          <p class="mt-1.5 text-sm text-tinta-suave">{s.desc}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- FORMULÁRIO -->
+  <section class="mx-auto max-w-3xl px-4 pb-16">
+    <div class="rounded-2xl bg-white p-6 shadow-md ring-1 ring-cinza-200 sm:p-8">
+      <h2 class="text-2xl font-bold text-azul-700">Peça seu orçamento</h2>
+      <p class="mt-1 text-sm text-tinta-suave">
+        Preencha e enviamos uma resposta rápida. Na Fase 2 este formulário grava o pedido e avisa a
+        empresa automaticamente.
+      </p>
+
+      <!-- Fase 1: protótipo. Fase 2: envio grava lead no Supabase + notifica a empresa. -->
+      <form class="mt-6 grid gap-4 sm:grid-cols-2" data-fretamento>
+        <label class="flex flex-col gap-1 text-sm font-medium">
+          Nome
+          <input name="nome" required class="rounded-xl border border-cinza-300 px-3 py-2.5 font-normal outline-none focus:border-azul-500 focus:ring-2 focus:ring-azul-200" />
+        </label>
+        <label class="flex flex-col gap-1 text-sm font-medium">
+          WhatsApp / Telefone
+          <input name="telefone" required inputmode="tel" class="rounded-xl border border-cinza-300 px-3 py-2.5 font-normal outline-none focus:border-azul-500 focus:ring-2 focus:ring-azul-200" />
+        </label>
+        <label class="flex flex-col gap-1 text-sm font-medium">
+          Data da viagem
+          <input name="data" type="date" class="rounded-xl border border-cinza-300 px-3 py-2.5 font-normal outline-none focus:border-azul-500 focus:ring-2 focus:ring-azul-200" />
+        </label>
+        <label class="flex flex-col gap-1 text-sm font-medium">
+          Nº de passageiros
+          <input name="passageiros" type="number" min="1" inputmode="numeric" class="rounded-xl border border-cinza-300 px-3 py-2.5 font-normal outline-none focus:border-azul-500 focus:ring-2 focus:ring-azul-200" />
+        </label>
+        <label class="flex flex-col gap-1 text-sm font-medium sm:col-span-2">
+          Origem → Destino
+          <input name="trajeto" placeholder="Ex.: Arroio dos Ratos → Gramado" class="rounded-xl border border-cinza-300 px-3 py-2.5 font-normal outline-none focus:border-azul-500 focus:ring-2 focus:ring-azul-200" />
+        </label>
+        <label class="flex flex-col gap-1 text-sm font-medium sm:col-span-2">
+          Mensagem
+          <textarea name="mensagem" rows="3" class="rounded-xl border border-cinza-300 px-3 py-2.5 font-normal outline-none focus:border-azul-500 focus:ring-2 focus:ring-azul-200"></textarea>
+        </label>
+
+        <!-- Honeypot anti-spam -->
+        <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+        <button type="submit" class="rounded-xl bg-azul-700 px-5 py-3 font-bold text-white transition hover:bg-azul-600 sm:col-span-2">
+          Enviar pedido pelo WhatsApp
+        </button>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Grava o lead no Supabase (quando configurado) e abre o WhatsApp —
+  // o WhatsApp é o canal garantido mesmo sem banco.
+  import { getSupabase } from '../lib/supabase';
+  import { empresa } from '../data/empresa';
+
+  const form = document.querySelector<HTMLFormElement>('[data-fretamento]');
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if ((form.elements.namedItem('website') as HTMLInputElement)?.value) return; // honeypot
+
+    const d = new FormData(form);
+    const nome = String(d.get('nome') || '');
+    const telefone = String(d.get('telefone') || '');
+    const dataViagem = String(d.get('data') || '');
+    const trajeto = String(d.get('trajeto') || '');
+    const passageiros = String(d.get('passageiros') || '');
+    const mensagem = String(d.get('mensagem') || '');
+
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+    // Registra o lead (best-effort; não bloqueia o WhatsApp)
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        await supabase.from('charter_leads').insert({
+          nome,
+          telefone,
+          data_viagem: dataViagem || null,
+          trajeto: trajeto || null,
+          passageiros: passageiros ? Number(passageiros) : null,
+          mensagem: mensagem || null,
+        });
+      } catch { /* segue para o WhatsApp mesmo assim */ }
+    }
+
+    const texto = encodeURIComponent(
+      `Olá! Gostaria de um orçamento de fretamento.\n\n` +
+        `Nome: ${nome}\nTelefone: ${telefone}\nData: ${dataViagem}\n` +
+        `Trajeto: ${trajeto}\nPassageiros: ${passageiros}\nMensagem: ${mensagem}`,
+    );
+    window.open(`https://wa.me/${empresa.whatsapp}?text=${texto}`, '_blank');
+
+    if (btn) { btn.disabled = false; btn.textContent = 'Enviar pedido pelo WhatsApp'; }
+  });
+</script>

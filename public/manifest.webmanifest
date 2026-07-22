@@ -1,0 +1,13 @@
+{
+  "name": "Empresa Louzada — Horários",
+  "short_name": "Louzada",
+  "description": "Horários dos ônibus Arroio dos Ratos ⇄ Porto Alegre pela BR-290.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f7f9",
+  "theme_color": "#164a88",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

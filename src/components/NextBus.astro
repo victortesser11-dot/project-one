@@ -1,0 +1,69 @@
+---
+import { proximaPartida, formatarEspera } from '../lib/nextDeparture';
+import { SENTIDOS, TIPOS_DIA } from '../data/schedules';
+import type { Horarios, Sentido } from '../lib/types';
+
+interface Props {
+  horarios: Horarios;
+}
+const { horarios } = Astro.props;
+
+// Render inicial no servidor (SSG). O script no cliente recalcula com a
+// hora real do visitante — os horários vão serializados no JSON abaixo.
+const agora = new Date();
+const sentidos: Sentido[] = ['ida', 'volta'];
+const inicial = sentidos.map((s) => ({ sentido: s, info: proximaPartida(horarios, s, agora) }));
+---
+
+<section class="grid gap-4 sm:grid-cols-2" data-next-bus>
+  {
+    inicial.map(({ sentido, info }) => (
+      <article class="flex items-center gap-4 rounded-lg border-l-4 border-vermelho-500 bg-white px-5 py-4 shadow-sm ring-1 ring-cinza-200" data-card={sentido}>
+        <div class="min-w-0 flex-1">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-tinta-suave">{SENTIDOS[sentido].curto}</p>
+          <p class="tabular text-4xl font-extrabold leading-none text-azul-700" data-hora>
+            {info ? info.partida.hora : '--:--'}
+          </p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-bold text-vermelho-600" data-espera>
+            {info ? formatarEspera(info.minutosAte) : 'sem horário'}
+          </p>
+          <span class="text-xs font-medium text-tinta-suave" data-tipo>
+            {info ? TIPOS_DIA[info.tipoDia] : ''}
+          </span>
+        </div>
+      </article>
+    ))
+  }
+</section>
+
+<script type="application/json" data-horarios set:html={JSON.stringify(horarios)} />
+
+<script>
+  import { proximaPartida, formatarEspera } from '../lib/nextDeparture';
+  import { TIPOS_DIA } from '../data/schedules';
+  import type { Horarios, Sentido } from '../lib/types';
+
+  const raw = document.querySelector<HTMLElement>('[data-horarios]')?.textContent;
+  const horarios: Horarios | null = raw ? JSON.parse(raw) : null;
+
+  function atualizar() {
+    if (!horarios) return;
+    const agora = new Date();
+    document.querySelectorAll<HTMLElement>('[data-card]').forEach((card) => {
+      const sentido = card.dataset.card as Sentido;
+      const info = proximaPartida(horarios, sentido, agora);
+      if (!info) return;
+      const hora = card.querySelector<HTMLElement>('[data-hora]');
+      const espera = card.querySelector<HTMLElement>('[data-espera]');
+      const tipo = card.querySelector<HTMLElement>('[data-tipo]');
+      if (hora) hora.textContent = info.partida.hora;
+      if (espera) espera.textContent = formatarEspera(info.minutosAte);
+      if (tipo) tipo.textContent = TIPOS_DIA[info.tipoDia];
+    });
+  }
+
+  atualizar();
+  setInterval(atualizar, 30_000);
+</script>
