@@ -17,6 +17,9 @@ const {
   description = `Horários dos ônibus da ${empresa.nomeCompleto} entre Arroio dos Ratos e Porto Alegre pela BR-290. Consulte a próxima partida, tarifas e fretamento.`,
   whatsappMensagem,
 } = Astro.props;
+
+// URL absoluta da imagem de compartilhamento (funciona no domínio atual)
+const ogImage = new URL('/og.png', Astro.url).href;
 ---
 
 <!doctype html>
@@ -33,6 +36,11 @@ const {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:locale" content="pt_BR" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
 
     <!-- PWA -->
     <meta name="theme-color" content="#164a88" />
@@ -71,5 +79,29 @@ const {
     </main>
     <Footer />
     <WhatsAppButton mensagem={whatsappMensagem} />
+
+    <!-- Service worker (offline). Não registra em localhost para não atrapalhar o dev. -->
+    <script is:inline>
+      if (
+        'serviceWorker' in navigator &&
+        location.hostname !== 'localhost' &&
+        location.hostname !== '127.0.0.1'
+      ) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+
+    {/* Vercel Web Analytics (privacidade/cookieless) — só em produção.
+        Ative "Web Analytics" no painel do Vercel para começar a coletar. */}
+    {import.meta.env.PROD && (
+      <>
+        <script is:inline>
+          window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+        </script>
+        <script defer src="/_vercel/insights/script.js"></script>
+      </>
+    )}
   </body>
 </html>
