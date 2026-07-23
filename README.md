@@ -73,6 +73,8 @@ direto contra o Supabase — sem servidor próprio. Setup em
 **Fase 3 — em andamento**
 - [x] Dados ao vivo sem rebuild (adapter Vercel + ISR 60s) → ver [`docs/DEPLOY-VERCEL.md`](docs/DEPLOY-VERCEL.md)
 - [x] Página de pontos de embarque + mapa (OpenStreetMap/Leaflet, custo zero)
+- [x] Box/plataforma de embarque nos pontos (ex.: rodoviária de POA)
+- [x] Menu mobile em grade (sem rolagem horizontal)
 
 ## Próximos passos
 
