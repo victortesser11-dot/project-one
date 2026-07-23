@@ -60,6 +60,14 @@ function comoChegar(p: Ponto): string {
                     <div>
                       <p class="font-bold text-tinta">{p.nome}</p>
                       {p.referencia && <p class="mt-0.5 text-sm text-tinta-suave">{p.referencia}</p>}
+                      {p.plataforma && (
+                        <span class="mt-2 inline-flex items-center gap-1.5 rounded-md bg-vermelho-500 px-2.5 py-1 text-xs font-bold text-white">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 21V5a2 2 0 0 1 2-2h9l-1 4h5v8H6" />
+                          </svg>
+                          Embarque: {p.plataforma}
+                        </span>
+                      )}
                     </div>
                     <a
                       href={comoChegar(p)}
@@ -113,7 +121,11 @@ function comoChegar(p: Ponto): string {
           fillOpacity: 1,
         })
           .addTo(map)
-          .bindPopup(`<strong>${p.nome}</strong><br>${p.referencia ?? ''}<br>${p.cidade}`),
+          .bindPopup(
+            `<strong>${p.nome}</strong><br>${p.referencia ?? ''}` +
+              (p.plataforma ? `<br><b>Embarque: ${p.plataforma}</b>` : '') +
+              `<br>${p.cidade}`,
+          ),
       );
 
       if (marcadores.length > 1) {

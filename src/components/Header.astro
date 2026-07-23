@@ -56,23 +56,25 @@ const pathname = Astro.url.pathname;
     </a>
   </nav>
 
-  <!-- Nav mobile compacta -->
+  <!-- Nav mobile: 4 colunas iguais, cabe na tela sem rolar (o logo é o "Início") -->
   <div class="border-t border-cinza-200 md:hidden">
-    <ul class="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-2 py-1.5 text-sm font-semibold">
+    <ul class="mx-auto grid max-w-6xl grid-cols-4 px-1.5 py-1.5 text-xs font-semibold">
       {
-        links.map((l) => (
-          <li>
-            <a
-              href={l.href}
-              class:list={[
-                'block whitespace-nowrap rounded-md px-3 py-1.5',
-                pathname === l.href ? 'bg-azul-700 text-white' : 'text-tinta-suave',
-              ]}
-            >
-              {l.label}
-            </a>
-          </li>
-        ))
+        links
+          .filter((l) => l.href !== '/')
+          .map((l) => (
+            <li class="text-center">
+              <a
+                href={l.href}
+                class:list={[
+                  'block truncate rounded-md px-1 py-1.5',
+                  pathname === l.href ? 'bg-azul-700 text-white' : 'text-tinta-suave',
+                ]}
+              >
+                {l.label}
+              </a>
+            </li>
+          ))
       }
     </ul>
   </div>

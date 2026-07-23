@@ -5,6 +5,7 @@ export interface Ponto {
   cidade: string;
   lat: number | null;
   lng: number | null;
+  plataforma?: string | null; // box/plataforma de embarque (ex.: rodoviária de POA)
   ordem: number;
 }
 
@@ -25,6 +26,7 @@ export const pontosSeed: Ponto[] = [
     cidade: 'Porto Alegre',
     lat: -30.0246,
     lng: -51.2178,
+    plataforma: 'Box 20', // exemplo — a confirmar com a empresa
     ordem: 2,
   },
   {

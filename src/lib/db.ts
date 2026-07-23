@@ -69,9 +69,10 @@ export async function getPontos(): Promise<Ponto[]> {
   const db = leitor();
   if (!db) return pontosSeed;
   try {
+    // select('*') para tolerar a coluna `plataforma` existir ou não no banco
     const { data, error } = await db
       .from('stops')
-      .select('id, nome, referencia, cidade, lat, lng, ordem')
+      .select('*')
       .order('ordem', { ascending: true });
     if (error || !data || data.length === 0) return pontosSeed;
     return data as Ponto[];
